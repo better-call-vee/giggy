@@ -27,6 +27,9 @@ async function run() {
         const database = client.db('usersdb');
         const usersCollection = database.collection('users');
 
+        /*
+        // These routes are temporarily commented out since client isn't ready
+
         app.get('/users', async (req, res) => {
             const cursor = usersCollection.find();
             const result = await cursor.toArray();
@@ -68,6 +71,7 @@ async function run() {
             const result = await usersCollection.deleteOne(query);
             res.send(result);
         });
+        */
 
         await client.db("admin").command({ ping: 1 });
         console.log("Pinged your deployment. Successfully connected to MongoDB.");
@@ -79,7 +83,7 @@ async function run() {
 run().catch(console.dir);
 
 app.get('/', (req, res) => {
-    res.send('Simple CRUD Server running');
+    res.send('✅ Server is running & connected to MongoDB!');
 });
 
 app.listen(port, () => {
