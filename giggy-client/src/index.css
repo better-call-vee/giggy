@@ -1,2 +1,23 @@
 @import "tailwindcss";
+
+@theme {
+  --color-bgc: #bfdbfe;
+  --color-txt: #000000;
+  --icon-hover-bg: #e2e8f0;
+  --divider-color: #000000;
+}
+
+@layer base {
+  [data-theme="dark"] {
+    --color-bgc: #1f2937;
+    --color-txt: #ffffff;
+    --icon-hover-bg: #374151;
+    --divider-color: #4b5563;
+  }
+}
+
 @plugin "daisyui";
+
+body {
+  font-family: "Poppins", sans-serif;
+}
