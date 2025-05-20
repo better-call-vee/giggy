@@ -54,7 +54,7 @@ const Navbar = () => {
 
                     <div className="flex items-center divide-x divide-[divider-color] h-full">
                         {tabs.map(({ icon, title }, idx) => (
-                            <button 
+                            <button
                                 key={idx}
                                 title={title}
                                 className="
