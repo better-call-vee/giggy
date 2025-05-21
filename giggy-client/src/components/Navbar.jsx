@@ -17,7 +17,7 @@ const tabs = [
     { icon: <FaHome />, title: "Home", to: "/" },
     { icon: <FaSearch />, title: "Browse", to: "/browse" },
     { icon: <MdLibraryAdd />, title: "Add Task", to: "/add" },
-    { icon: <MdTask />, title: "My Tasks", to: "/tasks" },
+    { icon: <MdTask />, title: "My Tasks", to: "/mytasks" },
 ];
 
 const Navbar = () => {

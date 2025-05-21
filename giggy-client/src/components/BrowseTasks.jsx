@@ -1,15 +1,25 @@
 import React, { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
+import Loading from "./Loading";
 
 const BrowseTasks = () => {
     const [tasks, setTasks] = useState([]);
+    const [loading, setLoading] = useState(true);
 
     useEffect(() => {
         fetch("https://giggy-server.vercel.app/tasks")
             .then((res) => res.json())
-            .then((data) => setTasks(data))
-            .catch((err) => console.error(err));
+            .then((data) => {
+                setTasks(data);
+                setLoading(false);
+            })
+            .catch((err) => {
+                console.error(err);
+                setLoading(false);
+            });
     }, []);
+
+    if (loading) return <Loading />;
 
     return (
         <div className="min-h-screen bg-[color:var(--color-bbgc)] py-10 px-4">
@@ -27,13 +37,13 @@ const BrowseTasks = () => {
                             <h3 className="text-xl font-bold text-[color:var(--color-txt)] mb-2">
                                 {task.title}
                             </h3>
-                            <p className="text-lg font-medium text-[color:var(--color-secondary)]">
+                            <p className="text-lg font-medium text-[color:var(--color-sry)]">
                                 Budget: ${task.budget}
                             </p>
                         </div>
 
                         <Link
-                            to=""
+                            to={`/browse/${task._id}`}
                             className="mt-6 inline-block text-center bg-[color:var(--color-accent)] text-white font-semibold py-2 px-4 rounded-lg hover:bg-emerald-600 transition-colors duration-300"
                         >
                             View Details

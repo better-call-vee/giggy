@@ -12,8 +12,9 @@ import ForgotPass from '../components/ForgotPass';
 import PrivateRoute from '../provider/PrivateRoute';
 import AddTask from '../components/AddTask';
 import BrowseTasks from '../components/BrowseTasks';
+import ViewDetails from '../components/ViewDetails';
+import MyTasks from '../components/MyTasks';
 // import Profile      from '../components/Profile';
-// import ViewDetails  from '../components/ViewDetails';
 // import Subscriptions from '../components/Subscriptions';
 // import Reviews      from '../components/Reviews';
 
@@ -27,7 +28,23 @@ const router = createBrowserRouter([
             // { path: 'profile', element: <PrivateRoute><Profile /></PrivateRoute> },
             { path: 'add', element: <PrivateRoute><AddTask /></PrivateRoute> },
             { path: 'browse', element: <BrowseTasks /> },
-            // {
+            {
+                path: 'browse/:id',
+                element: <PrivateRoute><ViewDetails /></PrivateRoute>,
+                loader: async ({ params }) => {
+                    try {
+                        const res = await fetch(`https://giggy-server.vercel.app/tasks/${params.id}`);
+                        if (!res.ok) throw new Response('Not Found', { status: 404 });
+                        const data = await res.json();
+                        if (!data || Object.keys(data).length === 0) throw new Response('Not Found', { status: 404 });
+                        return data;
+                    } catch {
+                        throw new Response('Not Found', { status: 404 });
+                    }
+                }
+            },
+            { path: 'mytasks', element: <PrivateRoute><MyTasks /></PrivateRoute> }
+            // { 
             //   path: 'add/:planId',
             //   element: <PrivateRoute><ViewDetails /></PrivateRoute>,
             //   loader: async ({ params }) => {
