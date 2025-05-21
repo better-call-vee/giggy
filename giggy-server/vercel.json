@@ -16,6 +16,11 @@
       "dest": "index.js"
     },
     {
+      "src": "^/bids(?:/(.*))?$",
+      "methods": ["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"],
+      "dest": "index.js"
+    },
+    {
       "src": "^/(.*)$",
       "dest": "/public/$1"
     }

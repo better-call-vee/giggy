@@ -2,7 +2,7 @@ const express = require('express');
 const cors = require('cors');
 const serverless = require('serverless-http');
 require('dotenv').config();
-const { MongoClient, ServerApiVersion } = require('mongodb');
+const { MongoClient, ServerApiVersion, ObjectId } = require('mongodb');
 
 const app = express();
 app.use(cors());
@@ -46,16 +46,20 @@ app.get('/users', async (req, res) => {
   }
 });
 
-// GET /tasks — all tasks
 app.get('/tasks', async (req, res) => {
   try {
     await initDb();
-    const allTasks = await tasksCollection.find().toArray();
+
+    const { email } = req.query;
+    const query = email ? { email } : {};
+
+    const allTasks = await tasksCollection.find(query).toArray();
     res.json(allTasks);
   } catch (err) {
     res.status(500).json({ error: 'Failed to fetch tasks', details: err.message });
   }
 });
+
 
 // ALIAS: GET /users/tasks — also returns all tasks
 app.get('/users/tasks', async (req, res) => {
@@ -67,6 +71,7 @@ app.get('/users/tasks', async (req, res) => {
     res.status(500).json({ error: 'Failed to fetch tasks', details: err.message });
   }
 });
+
 
 // POST /users — upsert by email
 app.post('/users', async (req, res) => {
@@ -96,6 +101,60 @@ app.post('/tasks', async (req, res) => {
   }
 });
 
+app.get('/tasks/:id', async (req, res) => {
+  try {
+    await initDb();
+    const taskId = req.params.id;
+    const task = await tasksCollection.findOne({ _id: new ObjectId(taskId) });
+
+    if (!task) {
+      return res.status(404).json({ error: 'Task not found' });
+    }
+
+    res.json(task);
+  } catch (err) {
+    res.status(400).json({ error: 'Invalid task ID', details: err.message });
+  }
+});
+
+app.patch('/tasks/:id', async (req, res) => {
+  try {
+    await initDb();
+    const id = req.params.id;
+    const updates = req.body;
+
+    const result = await tasksCollection.updateOne(
+      { _id: new ObjectId(id) },
+      { $set: updates }
+    );
+
+    if (result.modifiedCount > 0) {
+      res.json({ success: true });
+    } else {
+      res.status(404).json({ success: false, message: 'Task not found or not updated.' });
+    }
+  } catch (err) {
+    res.status(500).json({ error: 'Failed to update task', details: err.message });
+  }
+});
+
+app.delete('/tasks/:id', async (req, res) => {
+  try {
+    await initDb();
+    const taskId = req.params.id;
+    const result = await tasksCollection.deleteOne({ _id: new ObjectId(taskId) });
+
+    if (result.deletedCount === 1) {
+      res.json({ success: true, deletedCount: 1 });
+    } else {
+      res.status(404).json({ success: false, message: "Task not found" });
+    }
+  } catch (err) {
+    res.status(400).json({ error: "Invalid task ID", details: err.message });
+  }
+});
+
+
 // PATCH /users — update lastSignInTime
 app.patch('/users', async (req, res) => {
   try {
@@ -114,6 +173,64 @@ app.patch('/users', async (req, res) => {
     res.status(500).json({ error: 'Internal Server Error' });
   }
 });
+
+
+// POST /bids — Add a bid to a task
+app.post('/bids', async (req, res) => {
+  try {
+    await initDb();
+    const { taskId, email } = req.body;
+
+    if (!ObjectId.isValid(taskId)) {
+      return res.status(400).json({ success: false, error: 'Invalid task ID' });
+    }
+
+    const taskObjectId = new ObjectId(taskId);
+
+    const result = await tasksCollection.updateOne(
+      { _id: taskObjectId },
+      { $addToSet: { bids: email } }
+    );
+
+    if (result.matchedCount === 0) {
+      return res.status(404).json({ success: false, message: 'Task not found.' });
+    }
+
+    if (result.modifiedCount === 0) {
+      return res.status(409).json({ success: false, message: 'You already bid on this task.' });
+    }
+
+    res.json({ success: true, message: 'Bid placed successfully.' });
+  } catch (err) {
+    res.status(500).json({ success: false, error: 'Failed to place bid', details: err.message });
+  }
+});
+
+app.get('/bids/:taskId', async (req, res) => {
+  try {
+    await initDb();
+    const { taskId } = req.params;
+
+    if (!ObjectId.isValid(taskId)) {
+      return res.status(400).json({ error: "Invalid task ID" });
+    }
+
+    const task = await tasksCollection.findOne(
+      { _id: new ObjectId(taskId) },
+      { projection: { bids: 1 } }
+    );
+
+    if (!task) {
+      return res.status(404).json({ error: "Task not found" });
+    }
+
+    res.json({ success: true, bids: task.bids || [] });
+  } catch (err) {
+    res.status(500).json({ error: "Failed to fetch bids", details: err.message });
+  }
+});
+
+
 
 module.exports = app;
 module.exports.handler = serverless(app);
