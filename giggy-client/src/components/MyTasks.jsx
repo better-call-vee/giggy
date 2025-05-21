@@ -1,14 +1,15 @@
-import { useEffect, useState, useContext, useCallback } from "react";
+import { useEffect, useState, useContext } from "react";
 import Swal from "sweetalert2";
 import Modal from "react-modal";
-import AuthContext from "../provider/AuthProvider";
 import Loading from "../components/Loading";
 import 'sweetalert2/src/sweetalert2.scss';
+import AuthContext from "../provider/AuthContext";
 
 Modal.setAppElement('#root');
 
 const MyTasks = () => {
-    const { user, loading } = useContext(AuthContext);
+    const { user } = useContext(AuthContext);
+    const [loading, setLoading] = useState(true);
     const [tasks, setTasks] = useState([]);
     const [selectedTask, setSelectedTask] = useState(null);
     const [isModalOpen, setIsModalOpen] = useState(false);
@@ -19,20 +20,24 @@ const MyTasks = () => {
         deadline: "",
     });
 
-    const fetchTasks = useCallback(async () => {
+    const fetchAndSetTasks = async () => {
         if (!user?.email) return;
+
+        setLoading(true);
         try {
             const res = await fetch(`https://giggy-server.vercel.app/tasks?email=${user.email}`);
             const data = await res.json();
             setTasks(data);
         } catch (err) {
             console.error("Failed to load tasks", err);
+        } finally {
+            setLoading(false);
         }
-    }, [user?.email]);
+    };
 
     useEffect(() => {
-        fetchTasks();
-    }, [fetchTasks]);
+        fetchAndSetTasks();
+    }, [user?.email]);
 
     if (loading) return <Loading />;
 
@@ -55,7 +60,7 @@ const MyTasks = () => {
 
                 if (res.ok) {
                     Swal.fire("Deleted!", "Your task has been deleted.", "success");
-                    fetchTasks();
+                    fetchAndSetTasks();
                 } else {
                     Swal.fire("Error", "Failed to delete task.", "error");
                 }
@@ -94,7 +99,7 @@ const MyTasks = () => {
 
         try {
             const res = await fetch(`https://giggy-server.vercel.app/tasks/${selectedTask._id}`, {
-                method: "PUT",
+                method: "PATCH",
                 headers: {
                     "Content-Type": "application/json",
                 },
@@ -103,8 +108,8 @@ const MyTasks = () => {
 
             if (res.ok) {
                 Swal.fire("Updated!", "Task updated successfully.", "success");
-                fetchTasks();
                 handleModalClose();
+                fetchAndSetTasks();
             } else {
                 Swal.fire("Error", "Failed to update task.", "error");
             }
@@ -127,7 +132,7 @@ const MyTasks = () => {
 
     return (
         <div className="max-w-6xl mx-auto px-4 py-8">
-            <h2 className="text-2xl font-semibold mb-6 text-center text-gray-700">
+            <h2 className="text-2xl font-semibold mb-6 text-center text-[color:var(--color-txt)]">
                 My Posted Tasks
             </h2>
 
@@ -183,10 +188,11 @@ const MyTasks = () => {
                 isOpen={isModalOpen}
                 onRequestClose={handleModalClose}
                 contentLabel="Update Task"
-                className="bg-white p-6 max-w-lg mx-auto mt-20 rounded-lg shadow-xl"
-                overlayClassName="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center"
+                closeTimeoutMS={200}
+                className="ReactModal__Content open modal-content bg-[color:var(--color-bbgc)] p-6 max-w-lg w-full mx-auto mt-20 rounded-xl shadow-2xl text-[color:var(--color-txt)]"
+                overlayClassName="ReactModal__Overlay modal-overlay fixed inset-0 bg-black bg-opacity-40 flex items-center justify-center z-50"
             >
-                <h2 className="text-xl font-semibold mb-4">Update Task</h2>
+                <h2 className="text-2xl font-bold mb-4 text-[color:var(--color-txt)]">Update Task</h2>
                 <form onSubmit={handleUpdateSubmit} className="space-y-4">
                     <input
                         type="text"
@@ -194,7 +200,7 @@ const MyTasks = () => {
                         placeholder="Title"
                         value={formData.title}
                         onChange={handleFormChange}
-                        className="w-full px-3 py-2 border rounded"
+                        className="input-style"
                         required
                     />
                     <input
@@ -203,7 +209,7 @@ const MyTasks = () => {
                         placeholder="Category"
                         value={formData.category}
                         onChange={handleFormChange}
-                        className="w-full px-3 py-2 border rounded"
+                        className="input-style"
                         required
                     />
                     <input
@@ -212,34 +218,38 @@ const MyTasks = () => {
                         placeholder="Budget"
                         value={formData.budget}
                         onChange={handleFormChange}
-                        className="w-full px-3 py-2 border rounded"
+                        className="input-style"
                         required
                     />
                     <input
-                        type="date"
                         name="deadline"
+                        type="date"
+                        required
                         value={formData.deadline}
                         onChange={handleFormChange}
-                        className="w-full px-3 py-2 border rounded"
-                        required
+                        className="input-style text-black dark:text-white bg-white dark:bg-gray-900 
+               [&::-webkit-calendar-picker-indicator]:filter-white 
+               [&::-webkit-calendar-picker-indicator]:invert 
+               [&::-webkit-calendar-picker-indicator]:brightness-0"
                     />
-                    <div className="flex justify-end space-x-2">
+                    <div className="flex justify-end space-x-2 pt-2">
                         <button
                             type="button"
                             onClick={handleModalClose}
-                            className="bg-gray-300 hover:bg-gray-400 px-4 py-2 rounded"
+                            className="bg-red-400 hover:bg-gray-400 text-[color:var(--color-txt)] px-4 py-2 rounded-lg"
                         >
                             Cancel
                         </button>
                         <button
                             type="submit"
-                            className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded"
+                            className="bg-[color:var(--color-primary)] hover:bg-blue-700 text-white px-4 py-2 rounded-lg"
                         >
                             Save
                         </button>
                     </div>
                 </form>
             </Modal>
+
         </div>
     );
 };

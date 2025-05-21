@@ -10,7 +10,7 @@ const ViewDetails = () => {
     const [task, setTask] = useState(null);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState("");
-    const { user } = useContext(AuthContext); // ✅ Correctly use AuthContext
+    const { user } = useContext(AuthContext);
 
     useEffect(() => {
         fetch(`https://giggy-server.vercel.app/tasks/${id}`)
@@ -34,7 +34,6 @@ const ViewDetails = () => {
             return Swal.fire("Unauthorized", "Please log in to bid.", "warning");
         }
 
-        // ✅ Frontend check for duplicate bid
         if (task?.bids?.includes(user.email)) {
             return Swal.fire("Already Bid", "You have already placed a bid on this task.", "info");
         }
@@ -57,8 +56,16 @@ const ViewDetails = () => {
                     .then((res) => res.json())
                     .then((data) => {
                         if (data.success) {
+                            // Update bid count
+                            fetch("https://giggy-server.vercel.app/cbids", {
+                                method: "PUT",
+                                headers: { "Content-Type": "application/json" },
+                                body: JSON.stringify({ email: user.email })
+                            }).catch((err) => console.error("Failed to update cbids", err));
+
                             Swal.fire("Success!", data.message, "success");
-                            // ✅ Update local state to reflect the new bid
+
+                            // Update local task state
                             setTask((prev) => ({
                                 ...prev,
                                 bids: [...(prev?.bids || []), user.email]
@@ -75,7 +82,7 @@ const ViewDetails = () => {
     };
 
     if (loading) {
-        return <Loading />
+        return <Loading />;
     }
 
     if (error || !task) {

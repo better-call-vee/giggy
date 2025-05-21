@@ -38,6 +38,36 @@
   }
 }
 
+/* Required for Modal animation support */
+.ReactModal__Overlay {
+  opacity: 0;
+  transition: opacity 200ms ease-in-out;
+}
+
+.ReactModal__Overlay--after-open {
+  opacity: 1;
+}
+
+.ReactModal__Overlay--before-close {
+  opacity: 0;
+}
+
+.ReactModal__Content {
+  opacity: 0;
+  transform: scale(0.95);
+  transition: all 200ms ease-in-out;
+}
+
+.ReactModal__Content--after-open {
+  opacity: 1;
+  transform: scale(1);
+}
+
+.ReactModal__Content--before-close {
+  opacity: 0;
+  transform: scale(0.95);
+}
+
 @plugin "daisyui";
 
 body {

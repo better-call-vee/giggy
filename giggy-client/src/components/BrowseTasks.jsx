@@ -1,12 +1,16 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useContext } from "react";
 import { Link } from "react-router-dom";
+import AuthContext from "../provider/AuthContext";
 import Loading from "./Loading";
 
 const BrowseTasks = () => {
+    const { user } = useContext(AuthContext);
     const [tasks, setTasks] = useState([]);
     const [loading, setLoading] = useState(true);
+    const [bidCount, setBidCount] = useState(null);
 
     useEffect(() => {
+        // Fetch tasks
         fetch("https://giggy-server.vercel.app/tasks")
             .then((res) => res.json())
             .then((data) => {
@@ -17,15 +21,38 @@ const BrowseTasks = () => {
                 console.error(err);
                 setLoading(false);
             });
-    }, []);
+
+        // Fetch bid count if logged in
+        if (user?.email) {
+            fetch(`https://giggy-server.vercel.app/cbids/${user.email}`)
+                .then((res) => res.json())
+                .then((data) => {
+                    if (data?.count !== undefined) {
+                        setBidCount(data.count);
+                    } else {
+                        setBidCount(0); // fallback
+                    }
+                })
+                .catch((err) => {
+                    console.error("Failed to fetch bid count", err);
+                    setBidCount(0);
+                });
+        }
+    }, [user?.email]);
 
     if (loading) return <Loading />;
 
     return (
         <div className="min-h-screen bg-[color:var(--color-bbgc)] py-10 px-4">
-            <h2 className="text-3xl font-semibold text-[color:var(--color-txt)] text-center mb-10">
+            <h2 className="text-3xl font-semibold text-[color:var(--color-txt)] text-center mb-2">
                 Browse Tasks
             </h2>
+
+            {user?.email && bidCount !== null && (
+                <p className="text-center text-lg font-medium text-[color:var(--color-sry)] mb-8">
+                    YOUR BID OPPORTUNITIES: {bidCount}
+                </p>
+            )}
 
             <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5 gap-6">
                 {tasks.map((task) => (

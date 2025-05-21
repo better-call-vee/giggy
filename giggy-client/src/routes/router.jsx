@@ -43,7 +43,7 @@ const router = createBrowserRouter([
                     }
                 }
             },
-            { path: 'mytasks', element: <PrivateRoute><MyTasks /></PrivateRoute> }
+            { path: 'mytasks', element: <PrivateRoute><MyTasks /></PrivateRoute> },
             // { 
             //   path: 'add/:planId',
             //   element: <PrivateRoute><ViewDetails /></PrivateRoute>,
