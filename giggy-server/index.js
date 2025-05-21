@@ -1,5 +1,3 @@
-// index.js
-
 const express = require('express');
 const cors = require('cors');
 const serverless = require('serverless-http');
@@ -19,17 +17,25 @@ const client = new MongoClient(uri, {
 });
 
 let usersCollection = null;
+let tasksCollection = null;
 let isConnected = false;
 
 async function initDb() {
   if (!isConnected) {
     await client.connect();
-    usersCollection = client.db('usersDB').collection('users');
+    const db = client.db('usersDB');
+    usersCollection = db.collection('users');
+    tasksCollection = db.collection('tasks');
     isConnected = true;
   }
 }
 
-// GET /users
+// Health check
+app.get('/', (req, res) => {
+  res.send('Giggy server is getting hotter.');
+});
+
+// GET /users — all users
 app.get('/users', async (req, res) => {
   try {
     await initDb();
@@ -40,7 +46,29 @@ app.get('/users', async (req, res) => {
   }
 });
 
-// POST /users  — upsert by email, return full user doc
+// GET /tasks — all tasks
+app.get('/tasks', async (req, res) => {
+  try {
+    await initDb();
+    const allTasks = await tasksCollection.find().toArray();
+    res.json(allTasks);
+  } catch (err) {
+    res.status(500).json({ error: 'Failed to fetch tasks', details: err.message });
+  }
+});
+
+// ALIAS: GET /users/tasks — also returns all tasks
+app.get('/users/tasks', async (req, res) => {
+  try {
+    await initDb();
+    const allTasks = await tasksCollection.find().toArray();
+    res.json(allTasks);
+  } catch (err) {
+    res.status(500).json({ error: 'Failed to fetch tasks', details: err.message });
+  }
+});
+
+// POST /users — upsert by email
 app.post('/users', async (req, res) => {
   try {
     await initDb();
@@ -56,7 +84,19 @@ app.post('/users', async (req, res) => {
   }
 });
 
-// PATCH /users — update lastSignInTime, return updated doc
+// POST /tasks — add a new task
+app.post('/tasks', async (req, res) => {
+  try {
+    await initDb();
+    const task = req.body;
+    const result = await tasksCollection.insertOne(task);
+    res.json({ success: true, insertedId: result.insertedId });
+  } catch (err) {
+    res.status(500).json({ error: 'Failed to add task', details: err.message });
+  }
+});
+
+// PATCH /users — update lastSignInTime
 app.patch('/users', async (req, res) => {
   try {
     await initDb();
@@ -73,10 +113,6 @@ app.patch('/users', async (req, res) => {
   } catch {
     res.status(500).json({ error: 'Internal Server Error' });
   }
-});
-
-app.get('/', (req, res) => {
-  res.send('Giggy server is getting hotter.');
 });
 
 module.exports = app;
