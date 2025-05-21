@@ -4,6 +4,7 @@ import AuthContext from "../provider/AuthContext";
 import { FcGoogle } from "react-icons/fc";
 import { FaEye, FaEyeSlash } from "react-icons/fa";
 import Swal from "sweetalert2";
+import Loading from "./Loading";
 
 const BACKEND_URL = "https://giggy-server.vercel.app/users";
 
@@ -12,6 +13,7 @@ export default function Login() {
     const [password, setPassword] = useState("");
     const [showPassword, setShowPassword] = useState(false);
     const [error, setError] = useState("");
+    const [isLoading, setIsLoading] = useState(false);
 
     const { signIn, signInWithGoogle } = useContext(AuthContext);
     const location = useLocation();
@@ -37,12 +39,12 @@ export default function Login() {
     const handleLogin = async (e) => {
         e.preventDefault();
         setError("");
+        setIsLoading(true);
 
         try {
             const result = await signIn(email, password);
             await updateLastSignIn(result.user);
 
-            // show alert immediately, then navigate when it closes
             Swal.fire({
                 position: "center",
                 icon: "success",
@@ -50,7 +52,7 @@ export default function Login() {
                 showConfirmButton: false,
                 timer: 1200,
                 timerProgressBar: true,
-                willClose: () => navigate(from, { replace: true })
+                willClose: () => navigate(from, { replace: true }),
             });
         } catch (err) {
             console.error(err);
@@ -62,11 +64,14 @@ export default function Login() {
                 title: "Login error",
                 text: msg,
             });
+        } finally {
+            setIsLoading(false);
         }
     };
 
     const handleGoogleSignIn = async () => {
         setError("");
+        setIsLoading(true);
 
         try {
             const result = await signInWithGoogle();
@@ -79,7 +84,7 @@ export default function Login() {
                 showConfirmButton: false,
                 timer: 1200,
                 timerProgressBar: true,
-                willClose: () => navigate(from, { replace: true })
+                willClose: () => navigate(from, { replace: true }),
             });
         } catch (err) {
             console.error(err);
@@ -91,8 +96,12 @@ export default function Login() {
                 title: "Google sign-in error",
                 text: msg,
             });
+        } finally {
+            setIsLoading(false);
         }
     };
+
+    if (isLoading) return <Loading />;
 
     return (
         <div className="flex justify-center items-center min-h-screen">

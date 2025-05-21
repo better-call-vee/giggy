@@ -30,6 +30,12 @@
   }
 }
 
+@layer components {
+  .input-style {
+    @apply w-full p-3 rounded-lg border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-900 text-slate-800 dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-[color:var(--color-primary)] transition;
+  }
+}
+
 @plugin "daisyui";
 
 body {

@@ -9,8 +9,8 @@ import Home from '../components/Home';
 import Login from '../components/Login';
 import Register from '../components/Register';
 import ForgotPass from '../components/ForgotPass';
-
 import PrivateRoute from '../provider/PrivateRoute';
+import AddTask from '../components/AddTask';
 // import Profile      from '../components/Profile';
 // import ViewDetails  from '../components/ViewDetails';
 // import Subscriptions from '../components/Subscriptions';
@@ -24,8 +24,9 @@ const router = createBrowserRouter([
         children: [
             { index: true, element: <Home /> },
             // { path: 'profile', element: <PrivateRoute><Profile /></PrivateRoute> },
+            { path: 'add', element: <PrivateRoute><AddTask /></PrivateRoute> },
             // {
-            //   path: 'plans/:planId',
+            //   path: 'add/:planId',
             //   element: <PrivateRoute><ViewDetails /></PrivateRoute>,
             //   loader: async ({ params }) => {
             //     const res = await fetch('/plans.json');

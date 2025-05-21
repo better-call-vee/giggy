@@ -1,8 +1,9 @@
 import React, { useState, useContext } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import AuthContext from '../provider/AuthContext';
-import Swal from 'sweetalert2';
-import { FaEye, FaEyeSlash, FaGoogle } from 'react-icons/fa';
+import AuthContext from "../provider/AuthContext";
+import Swal from "sweetalert2";
+import { FaEye, FaEyeSlash, FaGoogle } from "react-icons/fa";
+import Loading from "./Loading";
 
 const BACKEND_URL = "https://giggy-server.vercel.app/users";
 
@@ -10,6 +11,8 @@ export default function Register() {
     const [nameError, setNameError] = useState("");
     const [passwordError, setPasswordError] = useState("");
     const [showPassword, setShowPassword] = useState(false);
+    const [isLoading, setIsLoading] = useState(false);
+
     const { createUser, signInWithGoogle, updateUser } = useContext(AuthContext);
     const navigate = useNavigate();
 
@@ -22,6 +25,7 @@ export default function Register() {
     };
 
     const saveToBackend = async (user) => {
+        const localTime = new Date(user.metadata.lastSignInTime).toLocaleString();
         const payload = {
             name: user.displayName || "",
             email: user.email,
@@ -29,9 +33,6 @@ export default function Register() {
             creationTime: user.metadata?.creationTime,
             lastSignInTime: localTime,
         };
-
-        const localTime = new Date(user.metadata.lastSignInTime)
-            .toLocaleString();
 
         const res = await fetch(BACKEND_URL, {
             method: "POST",
@@ -41,15 +42,11 @@ export default function Register() {
 
         if (!res.ok) {
             const txt = await res.text();
-            console.error("Backend POST /users error:", res.status, txt);
-            throw new Error(`Backend returned ${res.status}`);
+            throw new Error(`Backend returned ${res.status}: ${txt}`);
         }
 
         const data = await res.json();
-        if (!data.success) {
-            throw new Error("Unknown backend error");
-        }
-        // data.user is the existing or new user document
+        if (!data.success) throw new Error("Unknown backend error");
         return data.user;
     };
 
@@ -57,14 +54,12 @@ export default function Register() {
         e.preventDefault();
         const { name, email, photoURL, password } = e.target.elements;
 
-        // Name validation
         if (name.value.trim().length < 5) {
             setNameError("Name must be at least 5 characters");
             return;
         }
         setNameError("");
 
-        // Password validation
         const pwdErrs = validatePassword(password.value);
         if (pwdErrs.length) {
             setPasswordError(`Password must contain ${pwdErrs.join(", ")}`);
@@ -73,20 +68,17 @@ export default function Register() {
         setPasswordError("");
 
         try {
-            // 1) Firebase signup
+            setIsLoading(true);
             const result = await createUser(email.value, password.value);
 
-            // 2) Set displayName and photoURL
             await updateUser({
                 displayName: name.value.trim(),
                 photoURL: photoURL.value.trim(),
             });
 
-            // 3) Save or upsert on backend
             await saveToBackend(result.user);
 
-            // 4) Success alert
-            await Swal.fire({
+            Swal.fire({
                 position: "center",
                 icon: "success",
                 title: "Account created!",
@@ -94,97 +86,172 @@ export default function Register() {
                 timer: 1500,
             });
 
+            // Temporarily navigate to safe route
             navigate("/");
+
         } catch (err) {
-            console.error("Registration error:", err);
-            const message = err.code === 'auth/operation-not-allowed'
-                ? 'Please enable Email/Password in Firebase console.'
-                : err.message;
-            await Swal.fire({
+            const msg =
+                err.code === "auth/operation-not-allowed"
+                    ? "Please enable Email/Password in Firebase console."
+                    : err.message;
+            Swal.fire({
                 position: "center",
                 icon: "error",
                 title: "Registration error",
-                text: message,
+                text: msg,
             });
+        } finally {
+            setIsLoading(false);
         }
     };
 
     const handleGoogleLogin = async () => {
         try {
+            setIsLoading(true);
             const result = await signInWithGoogle();
             await saveToBackend(result.user);
-            await Swal.fire({
+
+            Swal.fire({
                 position: "center",
                 icon: "success",
                 title: "Signed in with Google",
                 showConfirmButton: false,
                 timer: 1200,
             });
+
             navigate("/");
         } catch (err) {
-            console.error("Google login error:", err);
-            await Swal.fire({
+            const msg = err.message || "Google login failed";
+            Swal.fire({
                 position: "center",
                 icon: "error",
                 title: "Google Login error",
-                text: err.message,
+                text: msg,
             });
+        } finally {
+            setIsLoading(false);
         }
     };
 
+    if (isLoading) return <Loading />;
+
     return (
-        <div className="flex justify-center min-h-screen items-center">
-            <div className="card bg-gray-800 text-white w-full max-w-sm shadow-2xl py-5">
-                <h2 className="text-2xl font-semibold text-center mb-4 text-sky-400">
+        <div
+            className="flex justify-center items-center min-h-screen bg-[--color-bgc]"
+        >
+            <div
+                className="w-full max-w-sm p-6 rounded-2xl shadow-md"
+                style={{
+                    background: "var(--color-bgc)",
+                    color: "var(--color-txt)",
+                }}
+            >
+                <h2
+                    className="text-3xl font-bold text-center mb-6"
+                    style={{ color: "var(--color-primary)" }}
+                >
                     Register
                 </h2>
-                <form onSubmit={handleRegister} className="card-body space-y-4">
-                    {/* Name */}
+                <form onSubmit={handleRegister} className="space-y-4">
                     <div>
-                        <label className="label text-white">Name</label>
-                        <input name="name" className="input bg-gray-900 border-sky-400 text-white" required />
-                        {nameError && <p className="text-red-500 text-xs mt-1">{nameError}</p>}
+                        <label className="block mb-1">Name</label>
+                        <input
+                            name="name"
+                            required
+                            className="w-full px-4 py-2 rounded border"
+                            style={{
+                                background: "var(--color-bgc)",
+                                borderColor: "var(--color-divider)",
+                                color: "var(--color-txt)",
+                            }}
+                        />
+                        {nameError && (
+                            <p className="text-sm" style={{ color: "var(--color-error)" }}>
+                                {nameError}
+                            </p>
+                        )}
                     </div>
-                    {/* Email */}
                     <div>
-                        <label className="label text-white">Email</label>
-                        <input name="email" type="email" className="input bg-gray-900 border-sky-400 text-white" required />
+                        <label className="block mb-1">Email</label>
+                        <input
+                            name="email"
+                            type="email"
+                            required
+                            className="w-full px-4 py-2 rounded border"
+                            style={{
+                                background: "var(--color-bgc)",
+                                borderColor: "var(--color-divider)",
+                                color: "var(--color-txt)",
+                            }}
+                        />
                     </div>
-                    {/* Photo URL */}
                     <div>
-                        <label className="label text-white">Photo URL</label>
-                        <input name="photoURL" className="input bg-gray-900 border-sky-400 text-white" required />
+                        <label className="block mb-1">Photo URL</label>
+                        <input
+                            name="photoURL"
+                            required
+                            className="w-full px-4 py-2 rounded border"
+                            style={{
+                                background: "var(--color-bgc)",
+                                borderColor: "var(--color-divider)",
+                                color: "var(--color-txt)",
+                            }}
+                        />
                     </div>
-                    {/* Password */}
                     <div className="relative">
-                        <label className="label text-white">Password</label>
+                        <label className="block mb-1">Password</label>
                         <input
                             name="password"
                             type={showPassword ? "text" : "password"}
-                            className="input bg-gray-900 border-sky-400 text-white pr-10"
                             required
+                            className="w-full px-4 py-2 rounded border pr-10"
+                            style={{
+                                background: "var(--color-bgc)",
+                                borderColor: "var(--color-divider)",
+                                color: "var(--color-txt)",
+                            }}
                         />
                         <button
                             type="button"
                             onClick={() => setShowPassword(!showPassword)}
-                            className="absolute inset-y-0 right-6 top-4 flex items-center text-gray-400 hover:text-white"
+                            className="absolute top-9 right-2 p-1 rounded"
+                            style={{ background: "var(--icon-hover-bg)" }}
                         >
-                            {showPassword ? <FaEyeSlash size={20} /> : <FaEye size={20} />}
+                            {showPassword ? <FaEyeSlash /> : <FaEye />}
                         </button>
-                        {passwordError && <p className="text-red-500 text-xs mt-1">{passwordError}</p>}
+                        {passwordError && (
+                            <p className="text-sm" style={{ color: "var(--color-error)" }}>
+                                {passwordError}
+                            </p>
+                        )}
                     </div>
-                    {/* Actions */}
-                    <button type="submit" className="btn bg-red-500 hover:bg-red-600 w-full">Register</button>
+                    <button
+                        type="submit"
+                        className="w-full py-2 rounded"
+                        style={{
+                            background: "var(--color-accent)",
+                            color: "#fff",
+                        }}
+                    >
+                        Register
+                    </button>
                     <button
                         type="button"
                         onClick={handleGoogleLogin}
-                        className="btn bg-white text-gray-800 w-full flex items-center justify-center gap-2"
+                        className="w-full flex items-center justify-center gap-2 py-2 rounded border mt-2
+             bg-[color:var(--color-bgc)] border-[color:var(--color-divider)] text-[color:var(--color-txt)]
+             hover:bg-green-500 hover:text-white transition"
                     >
                         <FaGoogle /> Continue with Google
                     </button>
-                    <p className="text-center text-gray-300 mt-4">
+
+                    <p className="text-center mt-4 text-sm">
                         Already have an account?{" "}
-                        <Link to="/auth/login" className="text-sky-400 hover:underline">
+                        <Link
+                            to="/auth/login"
+                            className="underline"
+                            style={{ color: "var(--color-primary)" }}
+                        >
                             Login
                         </Link>
                     </p>
