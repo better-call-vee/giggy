@@ -19,6 +19,7 @@ const client = new MongoClient(uri, {
 let usersCollection = null;
 let tasksCollection = null;
 let isConnected = false;
+let cbidsCollection = null;
 
 async function initDb() {
   if (!isConnected) {
@@ -26,6 +27,7 @@ async function initDb() {
     const db = client.db('usersDB');
     usersCollection = db.collection('users');
     tasksCollection = db.collection('tasks');
+    cbidsCollection = db.collection('cbids');
     isConnected = true;
   }
 }
@@ -123,6 +125,8 @@ app.patch('/tasks/:id', async (req, res) => {
     const id = req.params.id;
     const updates = req.body;
 
+    //console.log('PATCH /tasks/:id', { id, updates });
+
     const result = await tasksCollection.updateOne(
       { _id: new ObjectId(id) },
       { $set: updates }
@@ -137,6 +141,7 @@ app.patch('/tasks/:id', async (req, res) => {
     res.status(500).json({ error: 'Failed to update task', details: err.message });
   }
 });
+
 
 app.delete('/tasks/:id', async (req, res) => {
   try {
@@ -231,6 +236,62 @@ app.get('/bids/:taskId', async (req, res) => {
 });
 
 
+app.put('/cbids', async (req, res) => {
+  try {
+    await initDb();
+    const { email } = req.body;
+
+    if (!email) {
+      return res.status(400).json({ success: false, error: "Email is required." });
+    }
+
+    const result = await cbidsCollection.findOneAndUpdate(
+      { email },
+      { $inc: { count: 1 } },
+      { upsert: true, returnDocument: 'after' }
+    );
+
+    res.json({ success: true, cbid: result.value });
+  } catch (err) {
+    res.status(500).json({ success: false, error: "Failed to update cbid", details: err.message });
+  }
+});
+
+// GET /cbids — return all users' bid counts
+app.get('/cbids', async (req, res) => {
+  try {
+    await initDb();
+
+    // Fetch every document in cbidsCollection
+    const allCounts = await cbidsCollection.find().toArray();
+
+    // Return them; you may want to strip Mongo's _id or transform as needed
+    res.json({
+      success: true,
+      counts: allCounts.map(({ email, count }) => ({ email, count }))
+    });
+  } catch (err) {
+    console.error("Failed to fetch all cbids:", err);
+    res.status(500).json({ success: false, error: "Failed to fetch cbids", details: err.message });
+  }
+});
+
+
+app.get('/cbids/:email', async (req, res) => {
+  try {
+    await initDb();
+    const email = req.params.email;
+
+    const cbid = await cbidsCollection.findOne({ email });
+
+    res.json({
+      success: true,
+      count: cbid?.count || 0,
+    });
+  } catch (err) {
+    res.status(500).json({ success: false, error: "Failed to fetch cbid", details: err.message });
+  }
+});
 
 module.exports = app;
 module.exports.handler = serverless(app);
