@@ -75,7 +75,7 @@ app.post('/users', async (req, res) => {
     const user = req.body;
     const { value: savedUser } = await usersCollection.findOneAndUpdate(
       { email: user.email },
-      { $setOnInsert: user },
+      { $set: user },
       { upsert: true, returnDocument: 'after' }
     );
     res.json({ success: true, user: savedUser });
