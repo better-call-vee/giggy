@@ -11,6 +11,7 @@ import Register from '../components/Register';
 import ForgotPass from '../components/ForgotPass';
 import PrivateRoute from '../provider/PrivateRoute';
 import AddTask from '../components/AddTask';
+import BrowseTasks from '../components/BrowseTasks';
 // import Profile      from '../components/Profile';
 // import ViewDetails  from '../components/ViewDetails';
 // import Subscriptions from '../components/Subscriptions';
@@ -25,6 +26,7 @@ const router = createBrowserRouter([
             { index: true, element: <Home /> },
             // { path: 'profile', element: <PrivateRoute><Profile /></PrivateRoute> },
             { path: 'add', element: <PrivateRoute><AddTask /></PrivateRoute> },
+            { path: 'browse', element: <BrowseTasks /> },
             // {
             //   path: 'add/:planId',
             //   element: <PrivateRoute><ViewDetails /></PrivateRoute>,
