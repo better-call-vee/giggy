@@ -32,12 +32,10 @@ async function initDb() {
   }
 }
 
-// Health check
 app.get('/', (req, res) => {
   res.send('Giggy server is getting hotter.');
 });
 
-// GET /users — all users
 app.get('/users', async (req, res) => {
   try {
     await initDb();
@@ -63,7 +61,6 @@ app.get('/tasks', async (req, res) => {
 });
 
 
-// ALIAS: GET /users/tasks — also returns all tasks
 app.get('/users/tasks', async (req, res) => {
   try {
     await initDb();
@@ -75,7 +72,6 @@ app.get('/users/tasks', async (req, res) => {
 });
 
 
-// POST /users — upsert by email
 app.post('/users', async (req, res) => {
   try {
     await initDb();
@@ -91,7 +87,6 @@ app.post('/users', async (req, res) => {
   }
 });
 
-// POST /tasks — add a new task
 app.post('/tasks', async (req, res) => {
   try {
     await initDb();
@@ -125,7 +120,6 @@ app.patch('/tasks/:id', async (req, res) => {
     const id = req.params.id;
     const updates = req.body;
 
-    //console.log('PATCH /tasks/:id', { id, updates });
 
     const result = await tasksCollection.updateOne(
       { _id: new ObjectId(id) },
@@ -160,7 +154,6 @@ app.delete('/tasks/:id', async (req, res) => {
 });
 
 
-// PATCH /users — update lastSignInTime
 app.patch('/users', async (req, res) => {
   try {
     await initDb();
@@ -180,7 +173,6 @@ app.patch('/users', async (req, res) => {
 });
 
 
-// POST /bids — Add a bid to a task
 app.post('/bids', async (req, res) => {
   try {
     await initDb();
@@ -257,15 +249,12 @@ app.put('/cbids', async (req, res) => {
   }
 });
 
-// GET /cbids — return all users' bid counts
 app.get('/cbids', async (req, res) => {
   try {
     await initDb();
 
-    // Fetch every document in cbidsCollection
     const allCounts = await cbidsCollection.find().toArray();
 
-    // Return them; you may want to strip Mongo's _id or transform as needed
     res.json({
       success: true,
       counts: allCounts.map(({ email, count }) => ({ email, count }))
