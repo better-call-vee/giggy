@@ -109,7 +109,7 @@ export default function Banner() {
                                 </h2>
 
                                 <Link
-                                    to="/auth/register"
+                                    to="/add"
                                     className="max-w-max mt-4 inline-block px-6 py-3 rounded-2xl font-semibold text-white transition bg-red-600 hover:bg-red-700"
                                 >
                                     Let's Start
