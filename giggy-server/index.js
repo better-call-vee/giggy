@@ -8,6 +8,7 @@ const app = express();
 app.use(cors());
 app.use(express.json());
 
+
 const uri =
   `mongodb+srv://${process.env.DB_USER}:${process.env.DB_PASS}` +
   `@vee9-1.e4dwdky.mongodb.net/?retryWrites=true&w=majority&appName=vee9-1`;
