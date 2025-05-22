@@ -16,7 +16,7 @@ export default function Footer() {
                     {/* Logo and Brand */}
                     <div className="flex items-center space-x-2">
                         <img
-                            src={darkMode ? "/LogoL.png" : "/LogoD.png"}
+                            src={darkMode ? "/LogoD.png" : "/LogoL.png"}
                             alt="GIGGY Logo"
                             className="h-12 w-auto"
                         />
