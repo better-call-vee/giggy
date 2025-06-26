@@ -2,83 +2,84 @@ import React, { useEffect, useState } from 'react';
 import { FaInstagramSquare, FaFacebook, FaYoutube } from "react-icons/fa";
 
 export default function Footer() {
-    const [darkMode, setDarkMode] = useState(false);
+    const [theme, setTheme] = useState(document.documentElement.getAttribute('data-theme') || 'light');
+
 
     useEffect(() => {
-        const isDark = document.documentElement.getAttribute('data-theme') === 'dark';
-        setDarkMode(isDark);
+        const handleThemeChange = () => {
+            const currentTheme = document.documentElement.getAttribute('data-theme');
+            setTheme(currentTheme || 'light');
+        };
+
+        const observer = new MutationObserver((mutationsList) => {
+            for (const mutation of mutationsList) {
+                if (mutation.type === 'attributes' && mutation.attributeName === 'data-theme') {
+                    handleThemeChange();
+                }
+            }
+        });
+
+        observer.observe(document.documentElement, { attributes: true });
+
+        handleThemeChange();
+
+        return () => {
+            observer.disconnect();
+        };
     }, []);
 
     return (
-        <footer className="w-screen bg-bgc text-txt border-t border-[color:var(--color-divider)] mt-auto">
-            <div className="w-[85%] mx-auto py-10 px-4">
-                <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-8">
-                    {/* Logo and Brand */}
-                    <div className="flex items-center space-x-2">
+        <footer className="w-full bg-bgc text-txt border-t border-[color:var(--divider-color)] mt-auto">
+            <div className="w-[92%] max-w-7xl mx-auto py-8 px-4">
+                <div className="flex flex-col md:flex-row justify-between items-center gap-8">
+
+                    <div className="flex items-center space-x-3">
                         <img
-                            src={darkMode ? "/LogoD.png" : "/LogoL.png"}
+                            src={theme === 'dark' ? "/LogoD.png" : "/LogoL.png"}
                             alt="GIGGY Logo"
-                            className="h-12 w-auto"
+                            className="h-10 w-auto"
+                            onError={(e) => { e.target.onerror = null; e.target.src = `https://placehold.co/40x40/${theme === 'dark' ? 'FFFFFF/000000' : '000000/FFFFFF'}?text=G`; }}
                         />
-                        <span className="text-2xl font-extralight">GIGGY</span>
+                        <span className="text-2xl font-bold">GIGGY</span>
                     </div>
 
-                    {/* Social Media Icons */}
-                    <div className="flex space-x-4">
-                        <a
-                            href="https://www.facebook.com/better.call.vee"
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            className="hover:text-blue-400 transition-colors duration-200"
-                            aria-label="Facebook"
-                        >
-                            <FaFacebook size={28} />
-                        </a>
-                        <a
-                            href="https://www.instagram.com/neelbilai/"
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            className="hover:text-pink-400 transition-colors duration-200"
-                            aria-label="Instagram"
-                        >
-                            <FaInstagramSquare size={28} />
-                        </a>
-                        <a
-                            href="https://www.youtube.com/@JeffNippard"
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            className="hover:text-red-400 transition-colors duration-200"
-                            aria-label="YouTube"
-                        >
-                            <FaYoutube size={28} />
-                        </a>
-                    </div>
 
-                    {/* Legal Links */}
-                    <div className="flex flex-col md:flex-row md:space-x-6 space-y-2 md:space-y-0">
+                    <div className="flex flex-col md:flex-row items-center gap-4 md:gap-6 text-sm">
                         <a
-                            href="https://gatsport.com/blogs/gat-train/bodybuilding-glossary-a-z-terminology?srsltid=AfmBOopsiiH89jaoZEgL3jUcznWKNh-FXhBoLq_6HF7RG2lHataVcjDU"
+                            href="#"
                             target="_blank"
                             rel="noopener noreferrer"
-                            className="hover:text-blue-300 transition-colors duration-200 text-sm md:text-base"
+                            className="hover:text-sky-400 transition-colors"
                         >
                             Terms & Conditions
                         </a>
-                        <div className="hidden md:block w-px h-4 bg-[color:var(--color-divider)] self-center"></div>
                         <a
-                            href="https://www.facebook.com/messages/t/better.call.vee"
+                            href="#"
                             target="_blank"
                             rel="noopener noreferrer"
-                            className="hover:text-blue-300 transition-colors duration-200 text-sm md:text-base"
+                            className="hover:text-sky-400 transition-colors"
                         >
                             Privacy Policy
                         </a>
                     </div>
+
+                    <div className="flex space-x-4">
+                        <a href="https://www.facebook.com/better.call.vee" target="_blank" rel="noopener noreferrer" className="hover:text-blue-500 transition-colors" aria-label="Facebook">
+                            <FaFacebook size={24} />
+                        </a>
+                        <a href="https://www.instagram.com/neelbilai/" target="_blank" rel="noopener noreferrer" className="hover:text-pink-500 transition-colors" aria-label="Instagram">
+                            <FaInstagramSquare size={24} />
+                        </a>
+                        <a href="https://www.youtube.com/@JeffNippard" target="_blank" rel="noopener noreferrer" className="hover:text-red-600 transition-colors" aria-label="YouTube">
+                            <FaYoutube size={24} />
+                        </a>
+                    </div>
+
                 </div>
 
                 {/* Copyright */}
-                <div className="mt-8 pt-4 border-t border-[color:var(--color-divider)] text-center">
-                    <p className="text-sm opacity-70">
+                <div className="mt-8 pt-6 border-t border-[color:var(--divider-color)] text-center">
+                    <p className="text-sm opacity-60">
                         © {new Date().getFullYear()} GIGGY. All rights reserved.
                     </p>
                 </div>

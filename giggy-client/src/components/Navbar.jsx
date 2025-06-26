@@ -1,24 +1,34 @@
 import React, { useState, useEffect, useContext } from "react";
-import { FaHome, FaSearch } from "react-icons/fa";
+import { FaHome, FaSearch, FaWhatsapp } from "react-icons/fa";
 import {
   MdDarkMode,
   MdLightMode,
   MdLibraryAdd,
   MdTask,
   MdMenu,
-  MdClose
+  MdClose,
 } from "react-icons/md";
 import { BiLogIn, BiLogOut } from "react-icons/bi";
 import { NavLink, Link, useNavigate } from "react-router-dom";
-import AuthContext from '../provider/AuthContext';
-import Swal from 'sweetalert2';
+import AuthContext from "../provider/AuthContext";
+import Swal from "sweetalert2";
 
-const tabs = [
+const publicTabs = [
   { icon: <FaHome />, title: "Home", to: "/" },
   { icon: <FaSearch />, title: "Browse", to: "/browse" },
+  {
+    icon: <FaWhatsapp />,
+    title: "Contact",
+    to: "https://wa.me/8801601623676",
+  },
+];
+
+// Private tabs are only visible to logged-in users.
+const privateTabs = [
   { icon: <MdLibraryAdd />, title: "Add Task", to: "/add" },
   { icon: <MdTask />, title: "My Tasks", to: "/mytasks" },
 ];
+
 
 const Navbar = () => {
   const { user, logOut } = useContext(AuthContext);
@@ -26,6 +36,9 @@ const Navbar = () => {
 
   const [darkMode, setDarkMode] = useState(false);
   const [isDrawerOpen, setIsDrawerOpen] = useState(false);
+
+
+  const tabs = user ? [...publicTabs, ...privateTabs] : publicTabs;
 
   // Initialize theme
   useEffect(() => {
@@ -53,32 +66,44 @@ const Navbar = () => {
 
   const handleLogout = async () => {
     const result = await Swal.fire({
-      title: 'Are you sure you want to logout?',
-      icon: 'warning',
+      title: "Are you sure you want to logout?",
+      icon: "warning",
       showCancelButton: true,
-      confirmButtonText: 'Yes, logout',
-      cancelButtonText: 'Cancel',
+      confirmButtonText: "Yes, logout",
+      cancelButtonText: "Cancel",
       reverseButtons: true,
-      background: document.documentElement.getAttribute('data-theme') === 'dark' ? '#1f2937' : '#ffffff',
-      color: document.documentElement.getAttribute('data-theme') === 'dark' ? '#f9fafb' : '#1f2937'
+      background:
+        document.documentElement.getAttribute("data-theme") === "dark"
+          ? "#1f2937"
+          : "#ffffff",
+      color:
+        document.documentElement.getAttribute("data-theme") === "dark"
+          ? "#f9fafb"
+          : "#1f2937",
     });
 
     if (result.isConfirmed) {
       try {
         await logOut();
         Swal.fire({
-          icon: 'success',
-          title: 'Logged out!',
+          icon: "success",
+          title: "Logged out!",
           showConfirmButton: false,
           timer: 1200,
-          background: document.documentElement.getAttribute('data-theme') === 'dark' ? '#1f2937' : '#ffffff',
-          color: document.documentElement.getAttribute('data-theme') === 'dark' ? '#f9fafb' : '#1f2937'
+          background:
+            document.documentElement.getAttribute("data-theme") === "dark"
+              ? "#1f2937"
+              : "#ffffff",
+          color:
+            document.documentElement.getAttribute("data-theme") === "dark"
+              ? "#f9fafb"
+              : "#1f2937",
         });
-        navigate('/auth/login');
+        navigate("/auth/login");
       } catch (err) {
         Swal.fire({
-          icon: 'error',
-          title: 'Logout failed',
+          icon: "error",
+          title: "Logout failed",
           text: err.message,
         });
       }
@@ -87,7 +112,7 @@ const Navbar = () => {
 
   return (
     <>
-      <nav className="h-16 shadow-md bg-bgc text-txt transition-colors relative z-20">
+      <nav className="sticky top-0 h-16 shadow-md bg-bgc/95 backdrop-blur-sm text-txt transition-colors z-20">
         <div className="h-full w-[92%] max-w-7xl mx-auto flex justify-between items-center">
           {/* Mobile Logo + Menu */}
           <div className="md:hidden flex items-center gap-2">
@@ -95,6 +120,7 @@ const Navbar = () => {
               src={darkMode ? "/LogoD.png" : "/LogoL.png"}
               alt="GIGGY Logo"
               className="h-8 w-8"
+              onError={(e) => { e.target.onerror = null; e.target.src = 'https://placehold.co/32x32/000000/FFFFFF?text=G'; }}
             />
             <span className="text-xl font-bold">GIGGY</span>
           </div>
@@ -113,22 +139,37 @@ const Navbar = () => {
               src={darkMode ? "/LogoD.png" : "/LogoL.png"}
               alt="GIGGY Logo"
               className="h-8 w-8"
+              onError={(e) => { e.target.onerror = null; e.target.src = 'https://placehold.co/32x32/FFFFFF/000000?text=G'; }}
             />
             <span>GIGGY</span>
           </div>
 
           <div className="hidden md:flex items-center h-full">
             <div className="flex items-center divide-x divide-[var(--divider-color)] h-full">
-              {tabs.map(({ icon, to, title }, idx) => (
-                <NavLink
-                  key={idx}
-                  to={to}
-                  title={title}
-                  className="h-full px-4 flex items-center justify-center hover:bg-[var(--icon-hover-bg)] transition-colors duration-200"
-                >
-                  <span className="text-xl">{icon}</span>
-                </NavLink>
-              ))}
+              {/* No changes needed here, it will render the dynamic `tabs` array */}
+              {tabs.map(({ icon, to, title }, idx) =>
+                to.startsWith("http") ? (
+                  <a
+                    key={idx}
+                    href={to}
+                    title={title}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="h-full px-4 flex items-center justify-center hover:bg-[var(--icon-hover-bg)] transition-colors duration-200"
+                  >
+                    <span className="text-xl">{icon}</span>
+                  </a>
+                ) : (
+                  <NavLink
+                    key={idx}
+                    to={to}
+                    title={title}
+                    className="h-full px-4 flex items-center justify-center hover:bg-[var(--icon-hover-bg)] transition-colors duration-200"
+                  >
+                    <span className="text-xl">{icon}</span>
+                  </NavLink>
+                )
+              )}
               <button
                 onClick={toggleDarkMode}
                 title="Toggle Theme"
@@ -146,8 +187,9 @@ const Navbar = () => {
                 <img
                   src={user.photoURL || '/default-avatar.png'}
                   alt="Profile"
-                  title={user.displayName || 'User'}
+                  title={user.displayName || "User"}
                   className="h-10 w-10 rounded-full object-cover border-2 border-transparent hover:border-sky-400 transition"
+                  onError={(e) => { e.target.onerror = null; e.target.src = 'https://placehold.co/40x40/cccccc/000000?text=U'; }}
                 />
                 <button
                   onClick={handleLogout}
@@ -179,24 +221,41 @@ const Navbar = () => {
 
       {/* Mobile Drawer */}
       <div
-        className={`fixed top-0 left-0 w-3/4 h-full bg-bgc shadow-lg z-20 p-4 flex flex-col gap-4 transform transition-transform duration-300 ${
-          isDrawerOpen ? "translate-x-0" : "-translate-x-full"
-        }`}
+        className={`fixed top-0 left-0 w-3/4 h-full bg-bgc shadow-lg z-30 p-4 flex flex-col gap-4 transform transition-transform duration-300 ${isDrawerOpen ? "translate-x-0" : "-translate-x-full"
+          }`}
       >
-        {tabs.map(({ icon, title, to }, idx) => (
-          <NavLink
-            key={idx}
-            to={to}
-            onClick={toggleDrawer}
-            className="flex items-center gap-2 p-2 hover:bg-[var(--icon-hover-bg)] rounded transition"
-          >
-            <span className="text-xl">{icon}</span>
-            <span>{title}</span>
-          </NavLink>
-        ))}
+        {/* No changes needed here, it will also render the dynamic `tabs` array */}
+        {tabs.map(({ icon, title, to }, idx) =>
+          to.startsWith("http") ? (
+            <a
+              key={idx}
+              href={to}
+              target="_blank"
+              rel="noopener noreferrer"
+              onClick={toggleDrawer}
+              className="flex items-center gap-2 p-2 hover:bg-[var(--icon-hover-bg)] rounded transition"
+            >
+              <span className="text-xl">{icon}</span>
+              <span>{title}</span>
+            </a>
+          ) : (
+            <NavLink
+              key={idx}
+              to={to}
+              onClick={toggleDrawer}
+              className="flex items-center gap-2 p-2 hover:bg-[var(--icon-hover-bg)] rounded transition"
+            >
+              <span className="text-xl">{icon}</span>
+              <span>{title}</span>
+            </NavLink>
+          )
+        )}
 
         <button
-          onClick={() => { toggleDarkMode(); toggleDrawer(); }}
+          onClick={() => {
+            toggleDarkMode();
+            toggleDrawer();
+          }}
           className="flex items-center gap-2 p-2 hover:bg-[var(--icon-hover-bg)] rounded transition"
         >
           {darkMode ? <MdDarkMode /> : <MdLightMode />}
@@ -214,10 +273,14 @@ const Navbar = () => {
                 src={user.photoURL || '/default-avatar.png'}
                 alt="Profile"
                 className="w-6 h-6 rounded-full"
+                onError={(e) => { e.target.onerror = null; e.target.src = 'https://placehold.co/24x24/cccccc/000000?text=U'; }}
               />
             </Link>
             <button
-              onClick={async () => { toggleDrawer(); await handleLogout(); }}
+              onClick={async () => {
+                toggleDrawer();
+                await handleLogout();
+              }}
               className="flex items-center gap-2 p-2 text-red-500 hover:bg-[var(--icon-hover-bg)] rounded transition"
             >
               <BiLogOut />
