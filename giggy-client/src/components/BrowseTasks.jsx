@@ -114,7 +114,7 @@ const BrowseTasks = () => {
                         )}
                     </div>
 
-                    {/* 2. Beautiful Sort Button */}
+                    {/* Beautiful Sort Button */}
                     <button
                         onClick={handleSort}
                         className="flex items-center justify-center px-5 py-2 bg-[color:var(--color-accent)] text-white font-semibold rounded-full shadow-lg hover:bg-emerald-600 focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:ring-opacity-50 transition-all duration-300 transform hover:scale-105"
@@ -124,7 +124,7 @@ const BrowseTasks = () => {
                     </button>
                 </div>
 
-                {/* 3. Redesigned Task Cards */}
+                {/* Redesigned Task Cards */}
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8">
                     {tasks.map((task) => {
                         const expired = isExpired(task.deadline);
@@ -140,11 +140,11 @@ const BrowseTasks = () => {
                                 <div className="p-6 flex-grow flex flex-col">
                                     <div className="flex-grow">
                                         <p className="text-sm font-semibold text-emerald-500 mb-2">{task.category}</p>
-                                        <h3 className="text-xl font-bold text-[color:var(--color-txt)] mb-4 h-14">
+                                        <h3 className="text-xl font-bold text-[color:var(--color-txt)] mb-4 min-h-14">
                                             {task.title}
                                         </h3>
 
-                                        <div className="flex items-center text-[color:var(--color-sry)] mb-2">
+                                        <div className="flex items-center text-[color:var(--color-sry)] mb-4">
                                             <FaDollarSign className="mr-2 text-emerald-500" />
                                             <span className="font-bold text-lg">${task.budget}</span>
                                         </div>
@@ -164,7 +164,7 @@ const BrowseTasks = () => {
                                             <Link
                                                 to={`/browse/${task._id}`}
                                                 className="block w-full text-center bg-[color:var(--color-accent)] text-white font-semibold py-3 px-4 rounded-lg
-                                                         group-hover:bg-emerald-600 transition-colors duration-300"
+                                                        group-hover:bg-emerald-600 transition-colors duration-300"
                                             >
                                                 View & Bid
                                             </Link>
