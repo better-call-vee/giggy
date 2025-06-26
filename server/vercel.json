@@ -1,0 +1,33 @@
+{
+  "version": 2,
+  "builds": [
+    { "src": "index.js", "use": "@vercel/node" },
+    { "src": "public/**/*", "use": "@vercel/static" }
+  ],
+  "routes": [
+    {
+      "src": "^/users(?:/(.*))?$",
+      "methods": ["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"],
+      "dest": "index.js"
+    },
+    {
+      "src": "^/tasks(?:/(.*))?$",
+      "methods": ["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"],
+      "dest": "index.js"
+    },
+    {
+      "src": "^/bids(?:/(.*))?$",
+      "methods": ["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"],
+      "dest": "index.js"
+    },
+    {
+      "src": "^/cbids(?:/(.*))?$",
+      "methods": ["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"],
+      "dest": "index.js"
+    },
+    {
+      "src": "^/(.*)$",
+      "dest": "/public/$1"
+    }
+  ]
+}
