@@ -1,7 +1,7 @@
 # GIGGY - A Full-Stack Freelance Marketplace
 
 <a href="https://giggy-9.web.app/" target="_blank">
-  <img src="https://raw.githubusercontent.com/tanveefaiyaz/giggy-client/main/public/tasks.jpg" alt="GIGGY Banner"/>
+  <img src="https://raw.githubusercontent.com/better-call-vee/giggy/main/giggy.png" alt="GIGGY Banner"/>
 </a>
 
 <p align="center">
@@ -43,7 +43,7 @@ The project is built on a modern MERN-like stack, with each piece carefully chos
 
 ### Architecture
 
-GIGGY uses a classic client-server model. The **React frontend** is a pure Single-Page Application (SPA) deployed statically on Vercel. It communicates via a REST API with the **Node.js/Express backend**, which runs as a serverless function, also on Vercel, for scalability and efficiency. **MongoDB Atlas** serves as the cloud-hosted NoSQL database.
+GIGGY uses a classic client-server model. The **React frontend** is a pure Single-Page Application (SPA) deployed statically on Firebase Hosting. It communicates via a REST API with the **Node.js/Express backend**, which runs as a serverless function on Vercel for scalability and efficiency. **MongoDB Atlas** serves as the cloud-hosted NoSQL database.
 
 ### Frontend
 
@@ -80,16 +80,13 @@ To get a local copy up and running, please follow these steps.
 - A free [MongoDB Atlas](https://www.mongodb.com/cloud/atlas) account.
 - A free [Firebase](https://firebase.google.com/) project with **Email/Password** and **Google** sign-in methods enabled.
 
-### 1. Set Up the Backend (`giggy-server`)
+### 1. Set Up the Backend (`server` directory)
 
 ```bash
-# Clone the server repository
-git clone [https://github.com/your-username/giggy-server.git](https://github.com/your-username/giggy-server.git)
-cd giggy-server
+git clone [https://github.com/better-call-vee/giggy.git](https://github.com/better-call-vee/giggy.git)
+cd giggy/server
 
-# Install dependencies
 npm install
 
-# Create an environment file
 touch .env
 ```
