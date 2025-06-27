@@ -90,3 +90,87 @@ npm install
 
 touch .env
 ```
+
+Create a `.env` file in the `giggy/server` directory and add your MongoDB connection string.
+
+> **Note**: This file is ignored by Git (`.gitignore`) to keep your secrets safe.
+
+```env
+# Replace <USER> and <PASSWORD> with your MongoDB Atlas credentials
+DB_URI="mongodb+srv://<USER>:<PASSWORD>@cluster.mongodb.net/yourDbName?retryWrites=true&w=majority"
+```
+
+---
+
+### 2. 🧩 Frontend Setup (`client/giggy-client`)
+
+From the root `giggy` directory, navigate to the client folder:
+
+```bash
+cd client/giggy-client
+```
+
+Install dependencies:
+
+```bash
+npm install
+```
+
+Create a `.env.local` file to store Firebase configuration:
+
+```bash
+touch .env.local
+```
+
+Add your Firebase config keys (you can find these in your Firebase project's web app settings):
+
+```env
+VITE_APIKEY="YOUR_FIREBASE_API_KEY"
+VITE_AUTHDOMAIN="YOUR_FIREBASE_AUTH_DOMAIN"
+VITE_PROJECTID="YOUR_FIREBASE_PROJECT_ID"
+VITE_STORAGEBUCKET="YOUR_FIREBASE_STORAGE_BUCKET"
+VITE_MESSAGINGSENDERID="YOUR_FIREBASE_SENDER_ID"
+VITE_APPID="YOUR_FIREBASE_APP_ID"
+```
+
+> ✅ These keys are safe to expose on the client-side.
+
+---
+
+### 3. 🧪 Run the Application
+
+Start the backend server (in `giggy/server`):
+
+```bash
+npm start
+# or
+node index.js
+```
+
+Start the frontend dev server (in `giggy/client/giggy-client`):
+
+```bash
+npm run dev
+```
+
+Open your browser and visit:
+
+```
+http://localhost:5173
+```
+
+(or your configured Vite port)
+
+---
+
+## 📞 Contact
+
+**Faiyaz Tanvee**  
+🔗 [LinkedIn](https://www.linkedin.com/in/tanvee009/)  
+📧 faiyaztanvee9@gmail.com
+
+---
+
+## 🌐 Project Repository
+
+🔗 [GitHub Repo](https://github.com/better-call-vee/giggy)
