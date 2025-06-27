@@ -1,11 +1,11 @@
 # GIGGY - A Full-Stack Freelance Marketplace
 
-<a href="https://giggy-client.web.app/" target="_blank">
+<a href="https://giggy-9.web.app/" target="_blank">
   <img src="https://raw.githubusercontent.com/tanveefaiyaz/giggy-client/main/public/tasks.jpg" alt="GIGGY Banner"/>
 </a>
 
 <p align="center">
-  <a href="https://giggy-client.web.app/" target="_blank">
+  <a href="https://giggy-9.web.app/" target="_blank">
     <strong>View Live Demo »</strong>
   </a>
 </p>
