@@ -14,6 +14,7 @@ import AddTask from '../components/AddTask';
 import BrowseTasks from '../components/BrowseTasks';
 import ViewDetails from '../components/ViewDetails';
 import MyTasks from '../components/MyTasks';
+import Dashboard from '../components/Dashboard';
 // import Profile      from '../components/Profile';
 // import Subscriptions from '../components/Subscriptions';
 // import Reviews      from '../components/Reviews';
@@ -44,6 +45,8 @@ const router = createBrowserRouter([
                 }
             },
             { path: 'mytasks', element: <PrivateRoute><MyTasks /></PrivateRoute> },
+            { path: 'dashboard', element: <PrivateRoute><Dashboard /></PrivateRoute> },
+
             // { 
             //   path: 'add/:planId',
             //   element: <PrivateRoute><ViewDetails /></PrivateRoute>,

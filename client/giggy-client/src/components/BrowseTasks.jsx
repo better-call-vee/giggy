@@ -52,8 +52,6 @@ const BrowseTasks = () => {
         const newSortOrder = sortOrder === 'asc' ? 'desc' : 'asc';
         setSortOrder(newSortOrder);
 
-        // Use the Array.prototype.sort() method. It's highly optimized (often Timsort in V8/SpiderMonkey)
-        // and perfect for this use case. We sort a copy of the array to avoid mutating state directly.
         const sortedTasks = [...tasks].sort((a, b) => {
             if (newSortOrder === 'asc') {
                 return a.numericBudget - b.numericBudget; // Ascending
@@ -67,10 +65,8 @@ const BrowseTasks = () => {
 
     // Helper function to determine if a task is expired
     const isExpired = (deadline) => {
-        // We compare against the start of today. 
-        // Any deadline before today is considered expired.
         const today = new Date();
-        today.setHours(0, 0, 0, 0); // Normalize to the beginning of the day
+        today.setHours(0, 0, 0, 0);
         const deadlineDate = new Date(deadline);
         return deadlineDate < today;
     };
@@ -104,8 +100,14 @@ const BrowseTasks = () => {
                 {/* Header and Sort Button */}
                 <div className="flex justify-between items-center mb-10 flex-wrap gap-4">
                     <div>
-                        <h2 className="text-3xl font-bold text-[color:var(--color-txt)]">
+                        {/* MODIFICATION: Added a span to display the total task count */}
+                        <h2 className="text-3xl font-bold text-[color:var(--color-txt)] flex items-center gap-4">
                             All Open Tasks
+                            {!loading && (
+                                <span className="text-base font-semibold bg-[color:var(--color-accent)] text-white rounded-full px-3 py-1">
+                                    {tasks.length}
+                                </span>
+                            )}
                         </h2>
                         {user?.email && bidCount !== null && (
                             <p className="text-lg font-medium text-[color:var(--color-sry)] mt-1">
@@ -114,7 +116,6 @@ const BrowseTasks = () => {
                         )}
                     </div>
 
-                    {/* Beautiful Sort Button */}
                     <button
                         onClick={handleSort}
                         className="flex items-center justify-center px-5 py-2 bg-[color:var(--color-accent)] text-white font-semibold rounded-full shadow-lg hover:bg-emerald-600 focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:ring-opacity-50 transition-all duration-300 transform hover:scale-105"
@@ -144,7 +145,7 @@ const BrowseTasks = () => {
                                             {task.title}
                                         </h3>
 
-                                        <div className="flex items-center text-[color:var(--color-sry)] mb-4">
+                                        <div className="flex items-center text-[color:var(--color-sry)] mb-2">
                                             <FaDollarSign className="mr-2 text-emerald-500" />
                                             <span className="font-bold text-lg">${task.budget}</span>
                                         </div>
@@ -164,7 +165,7 @@ const BrowseTasks = () => {
                                             <Link
                                                 to={`/browse/${task._id}`}
                                                 className="block w-full text-center bg-[color:var(--color-accent)] text-white font-semibold py-3 px-4 rounded-lg
-                                                        group-hover:bg-emerald-600 transition-colors duration-300"
+                                                         group-hover:bg-emerald-600 transition-colors duration-300"
                                             >
                                                 View & Bid
                                             </Link>

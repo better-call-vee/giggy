@@ -7,12 +7,14 @@ import {
   MdTask,
   MdMenu,
   MdClose,
+  MdDashboard, // 1. Imported the Dashboard icon
 } from "react-icons/md";
 import { BiLogIn, BiLogOut } from "react-icons/bi";
 import { NavLink, Link, useNavigate } from "react-router-dom";
 import AuthContext from "../provider/AuthContext";
 import Swal from "sweetalert2";
 
+// Public tabs are visible to everyone.
 const publicTabs = [
   { icon: <FaHome />, title: "Home", to: "/" },
   { icon: <FaSearch />, title: "Browse", to: "/browse" },
@@ -146,7 +148,6 @@ const Navbar = () => {
 
           <div className="hidden md:flex items-center h-full">
             <div className="flex items-center divide-x divide-[var(--divider-color)] h-full">
-              {/* No changes needed here, it will render the dynamic `tabs` array */}
               {tabs.map(({ icon, to, title }, idx) =>
                 to.startsWith("http") ? (
                   <a
@@ -184,16 +185,26 @@ const Navbar = () => {
           <div className="hidden md:flex items-center gap-4">
             {user ? (
               <>
+                {/* 2. Added Dashboard link for desktop view */}
+                <NavLink
+                  to="/dashboard"
+                  title="Dashboard"
+                  className="flex items-center gap-2 px-3 py-2 text-txt bg-transparent rounded-lg hover:bg-[var(--icon-hover-bg)] transition"
+                >
+                  <MdDashboard />
+                  <span>Dash</span>
+                </NavLink>
+
                 <img
                   src={user.photoURL || '/default-avatar.png'}
                   alt="Profile"
                   title={user.displayName || "User"}
-                  className="h-10 w-10 rounded-full object-cover border-2 border-transparent hover:border-sky-400 transition"
+                  className="h-10 w-10 rounded-full object-cover border-2 border-transparent hover:border-sky-400 transition cursor-pointer"
                   onError={(e) => { e.target.onerror = null; e.target.src = 'https://placehold.co/40x40/cccccc/000000?text=U'; }}
                 />
                 <button
                   onClick={handleLogout}
-                  className="flex items-center gap-1 px-3 py-1 bg-red-500 text-white rounded hover:bg-red-600 transition"
+                  className="flex items-center gap-1 px-3 py-1 bg-red-500 text-white rounded-lg hover:bg-red-600 transition"
                 >
                   <BiLogOut /> Logout
                 </button>
@@ -224,7 +235,6 @@ const Navbar = () => {
         className={`fixed top-0 left-0 w-3/4 h-full bg-bgc shadow-lg z-30 p-4 flex flex-col gap-4 transform transition-transform duration-300 ${isDrawerOpen ? "translate-x-0" : "-translate-x-full"
           }`}
       >
-        {/* No changes needed here, it will also render the dynamic `tabs` array */}
         {tabs.map(({ icon, title, to }, idx) =>
           to.startsWith("http") ? (
             <a
@@ -262,20 +272,29 @@ const Navbar = () => {
           <span>Toggle Theme</span>
         </button>
 
+        <div className="border-t border-[var(--divider-color)] my-2"></div>
+
         {user ? (
           <>
-            <Link
-              to=""
+            <NavLink
+              to="/dashboard"
               onClick={toggleDrawer}
               className="flex items-center gap-2 p-2 hover:bg-[var(--icon-hover-bg)] rounded transition"
             >
+              <MdDashboard />
+              <span>Dashboard</span>
+            </NavLink>
+
+            <div className="flex items-center gap-2 p-2 rounded transition">
               <img
                 src={user.photoURL || '/default-avatar.png'}
                 alt="Profile"
                 className="w-6 h-6 rounded-full"
                 onError={(e) => { e.target.onerror = null; e.target.src = 'https://placehold.co/24x24/cccccc/000000?text=U'; }}
               />
-            </Link>
+              <span className="font-medium truncate">{user.displayName || user.email}</span>
+            </div>
+
             <button
               onClick={async () => {
                 toggleDrawer();
