@@ -1,4 +1,4 @@
-# GIGGY - A Full-Stack Freelance Marketplace
+# GIGGY 
 
 <a href="https://giggy-9.web.app/" target="_blank">
   <img src="https://raw.githubusercontent.com/better-call-vee/giggy/main/giggy.png" alt="GIGGY Banner"/>
